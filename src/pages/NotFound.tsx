@@ -1,6 +1,8 @@
-import React from "react";
-import NotFoundBlock from "../components/NotFoundBlock";
+import { useDocumentTitle } from '../hooks/useDocumentTitle';
+import NotFoundBlock from '../components/NotFoundBlock';
 
-const NotFound: React.FC = () => <NotFoundBlock />;
-
+const NotFound = () => {
+  useDocumentTitle('Страница не найдена');
+  return <NotFoundBlock />;
+};
 export default NotFound;

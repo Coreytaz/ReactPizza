@@ -1,29 +1,24 @@
-import React from "react";
-import Header from "./components/Header";
-import Home from "./pages/Home";
-import { Routes, Route } from "react-router-dom";
+import { Route, Routes } from 'react-router';
+import Header from './components/Header';
+import Cart from './pages/Cart';
+import FullPizza from './pages/FullPizza';
+import Home from './pages/Home';
+import NotFound from './pages/NotFound';
+import './scss/app.scss';
 
-import "./scss/app.scss";
-import NotFound from "./pages/NotFound";
-import Cart from "./pages/Cart";
-import FullPizza from "./pages/FullPizza";
-
-function App() {
-  // https://62a7887297b6156bff8ff64b.mockapi.io/items
-
+export default function App() {
   return (
     <div className="wrapper">
+      <a className="skip-link" href="#main-content">Перейти к содержимому</a>
       <Header />
-      <div className="content">
+      <main className="content" id="main-content">
         <Routes>
           <Route path="/" element={<Home />} />
-          <Route path="cart" element={<Cart />} />
+          <Route path="/cart" element={<Cart />} />
           <Route path="/pizza/:id" element={<FullPizza />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
-      </div>
+      </main>
     </div>
   );
 }
-
-export default App;

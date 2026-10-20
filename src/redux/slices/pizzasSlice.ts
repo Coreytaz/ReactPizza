@@ -1,7 +1,8 @@
-import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
-import axios from "axios";
+import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
+import axios from 'axios';
+import fallbackPizzas from '../../assets/pizzas.json';
 
-type PizzaItem = {
+export type PizzaItem = {
   id: string;
   title: string;
   price: number;
@@ -9,65 +10,82 @@ type PizzaItem = {
   sizes: number[];
   types: number[];
   rating: number;
+  category: number;
 };
 export enum Status {
-  LOADING = "loading",
-  SUCCESS = "success",
-  ERROR = "error",
+  LOADING = 'loading',
+  SUCCESS = 'success',
+  ERROR = 'error',
 }
 
-interface PizzaSliceState {
-  items: PizzaItem[];
-  status: Status;
-}
-
-const initialState: PizzaSliceState = {
-  items: [],
-  status: Status.LOADING,
-};
+type PizzaState = { items: PizzaItem[]; status: Status };
+const initialState: PizzaState = { items: [], status: Status.LOADING };
 
 export type SearchPizzaParams = {
-  sortBy: string;
-  order: string;
-  categoryi: string;
+  categoryId: number;
+  sortBy: 'rating' | 'price' | 'title';
+  order: 'asc' | 'desc';
   search: string;
 };
 
+export function filterLocalPizzas(params: SearchPizzaParams): PizzaItem[] {
+  const query = params.search.toLocaleLowerCase('ru').trim();
+  const filtered = fallbackPizzas.filter((pizza) =>
+    (params.categoryId === 0 || pizza.category === params.categoryId) &&
+    pizza.title.toLocaleLowerCase('ru').includes(query)
+  );
+  const multiplier = params.order === 'asc' ? 1 : -1;
+  return filtered.sort((a, b) => {
+    if (params.sortBy === 'title') return multiplier * a.title.localeCompare(b.title, 'ru');
+    return multiplier * (a[params.sortBy] - b[params.sortBy]);
+  }).map((item) => ({ ...item, id: String(item.id) }));
+}
+
 export const fetchPizzas = createAsyncThunk<PizzaItem[], SearchPizzaParams>(
-  "pizza/fetchByIdStatus",
-  async (params) => {
-    const { sortBy, order, categoryi, search } = params;
-    const { data } = await axios.get<PizzaItem[]>(
-      `https://62a7887297b6156bff8ff64b.mockapi.io/items?${categoryi}&sortBy=${sortBy}&order=${order}&search=${search}`
-    );
-    return data;
-  }
+  'pizzas/fetch',
+  async (params, { signal }) => {
+    try {
+      const { data } = await axios.get<PizzaItem[]>(
+        'https://62a7887297b6156bff8ff64b.mockapi.io/items',
+        {
+          params: {
+            ...(params.categoryId ? { category: params.categoryId } : {}),
+            sortBy: params.sortBy,
+            order: params.order,
+            ...(params.search ? { search: params.search } : {}),
+          },
+          signal,
+          timeout: 3500,
+        },
+      );
+      return data.map((pizza) => ({ ...pizza, id: String(pizza.id) }));
+    } catch (error) {
+      if (signal.aborted) throw error;
+      // The original MockAPI is a demo endpoint; retain a usable catalogue offline.
+      return filterLocalPizzas(params);
+    }
+  },
 );
 
-export const pizzasSlice = createSlice({
-  name: "pizza",
+const pizzasSlice = createSlice({
+  name: 'pizzas',
   initialState,
-  reducers: {
-    setItems(state, action: PayloadAction<PizzaItem[]>) {
-      state.items = action.payload;
-    },
-  },
+  reducers: {},
   extraReducers: (builder) => {
-    builder.addCase(fetchPizzas.pending, (state) => {
-      state.status = Status.LOADING;
-      state.items = [];
-    });
-    builder.addCase(fetchPizzas.fulfilled, (state, action) => {
-      state.items = action.payload;
-      state.status = Status.SUCCESS;
-    });
-    builder.addCase(fetchPizzas.rejected, (state) => {
-      state.status = Status.ERROR;
-      state.items = [];
-    });
+    builder
+      .addCase(fetchPizzas.pending, (state) => {
+        state.status = Status.LOADING;
+      })
+      .addCase(fetchPizzas.fulfilled, (state, action) => {
+        state.items = action.payload;
+        state.status = Status.SUCCESS;
+      })
+      .addCase(fetchPizzas.rejected, (state, action) => {
+        if (action.meta.aborted) return;
+        state.items = [];
+        state.status = Status.ERROR;
+      });
   },
 });
-
-export const { setItems } = pizzasSlice.actions;
 
 export default pizzasSlice.reducer;

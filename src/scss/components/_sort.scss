@@ -1,53 +1,12 @@
-@import "../variables";
-
 .sort {
-  position: relative;
-  &__label {
-    display: flex;
-    align-items: center;
-
-    svg {
-      margin-right: 8px;
-    }
-
-    b {
-      margin-right: 8px;
-    }
-
-    span {
-      color: $orange;
-      border-bottom: 1px dashed $orange;
-      cursor: pointer;
-    }
-  }
-
+  position: relative; flex-shrink: 0; z-index: 5;
+  &__label { display: flex; align-items: center; gap: 7px; font-size: 14px; }
+  &__trigger { padding: 7px 2px; color: #bf4210; text-decoration: underline dashed; text-underline-offset: 4px; border: 0; background: transparent; white-space: nowrap; }
   &__popup {
-    position: absolute;
-    right: 0;
-    margin-top: 15px;
-    background: #ffffff;
-    box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.09);
-    border-radius: 10px;
-    overflow: hidden;
-    padding: 10px 0;
-    width: 210px;
-
-    ul {
-      overflow: hidden;
-      li {
-        padding: 12px 20px;
-        cursor: pointer;
-
-        &.active,
-        &:hover {
-          background: rgba(254, 95, 30, 0.05);
-        }
-
-        &.active {
-          font-weight: bold;
-          color: $orange;
-        }
-      }
-    }
+    position: absolute; top: 100%; right: 0; width: max-content; min-width: 200px; max-width: min(300px, 90vw);
+    padding: 7px; background: #fff; box-shadow: 0 5px 15px rgb(0 0 0 / 12%); border-radius: 10px;
+    button { width: 100%; text-align: left; border: 0; padding: 10px 13px; background: #fff; border-radius: 6px; color: $black; }
+    button:hover, button.active { background: #fff1e9; color: #a53600; }
+    button.active { font-weight: 700; }
   }
 }

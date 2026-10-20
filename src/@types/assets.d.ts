@@ -1,14 +1,3 @@
-declare module "*.svg" {
-  const content: any;
-  export default content;
-}
-
-declare module "*.png" {
-  const content: any;
-  export default content;
-}
-
-declare module "*.scss" {
-  const content: any;
-  export default content;
-}
+declare module '*.svg' { const src: string; export default src; }
+declare module '*.png' { const src: string; export default src; }
+declare module '*.module.scss' { const styles: { readonly [className: string]: string }; export default styles; }

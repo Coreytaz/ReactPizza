@@ -1,102 +1,66 @@
-import React from "react";
-import { useSelector } from "react-redux";
-import qs from "qs";
-import { useNavigate } from "react-router-dom";
+import { useEffect } from 'react';
+import { useSelector } from 'react-redux';
+import { useSearchParams } from 'react-router';
+import Category from '../components/Category';
+import PizzaBlock from '../components/PizzaBlock';
+import Skeleton from '../components/PizzaBlock/Skeleton';
+import Sort from '../components/Sort';
+import { getSort } from '../constants/sort';
+import { useDocumentTitle } from '../hooks/useDocumentTitle';
+import { fetchPizzas, Status } from '../redux/slices/pizzasSlice';
+import { RootState, useAppDispatch } from '../redux/store';
 
-import PizzaBlock from "../components/PizzaBlock";
-import Skeleton from "../components/PizzaBlock/Skeleton";
-import Sort from "../components/Sort";
-import { list } from "../components/Sort";
-import Category from "../components/Category";
-import { setCategoryId, setFilter } from "../redux/slices/filterSlice";
-import { fetchPizzas, SearchPizzaParams } from "../redux/slices/pizzasSlice";
-import { RootState, useAppDispatch } from "../redux/store";
-
-const Home: React.FC = () => {
-  const navigate = useNavigate();
-  const isSearch = React.useRef(false);
-  const isMounted = React.useRef(false);
-
-  const { categoryId, sort, searchValue } = useSelector(
-    ({ filter }: RootState) => filter
-  );
-  const { items, status } = useSelector(({ pizzas }: RootState) => pizzas);
+const Home = () => {
+  const [searchParams, setSearchParams] = useSearchParams();
+  const categoryParam = Number(searchParams.get('categoryId'));
+  const categoryId = Number.isInteger(categoryParam) && categoryParam >= 0 && categoryParam <= 5
+    ? categoryParam : 0;
+  const sort = getSort(searchParams.get('sortProperty'));
+  const search = searchParams.get('search') || '';
+  const { items, status } = useSelector((state: RootState) => state.pizzas);
   const dispatch = useAppDispatch();
+  useDocumentTitle('Каталог пиццы');
 
-  const getPizzas = () => {
-    const sortBy = sort.sortProperty.replace("-", "");
-    const order = sort.sortProperty.includes("-") ? "asc" : "desc";
-    const categoryi = categoryId > 0 ? `category=${categoryId}` : "";
-    const search = searchValue ? searchValue : "";
-    console.log(categoryi);
+  useEffect(() => {
+    const request = dispatch(fetchPizzas({
+      categoryId,
+      sortBy: sort.value.replace('-', '') as 'rating' | 'price' | 'title',
+      order: sort.value.startsWith('-') ? 'asc' : 'desc',
+      search,
+    }));
+    window.scrollTo({ top: 0, behavior: 'auto' });
+    return () => { request.abort(); };
+  }, [dispatch, categoryId, sort.value, search]);
 
-    dispatch(
-      fetchPizzas({
-        sortBy,
-        order,
-        categoryi,
-        search,
-      })
-    );
+  const updateParam = (key: string, value: string, replace = false) => {
+    setSearchParams((current) => {
+      const next = new URLSearchParams(current);
+      if (!value || (key === 'categoryId' && value === '0') ||
+          (key === 'sortProperty' && value === 'rating')) {
+        next.delete(key);
+      } else {
+        next.set(key, value);
+      }
+      return next;
+    }, { replace });
   };
-
-  React.useEffect(() => {
-    if (window.location.search) {
-      const params = qs.parse(
-        window.location.search.substring(1)
-      ) as unknown as SearchPizzaParams;
-      const sort = list.find((obj) => obj.sortProperty === params.sortBy);
-      dispatch(
-        setFilter({
-          searchValue: params.search,
-          categoryId: Number(params.categoryi),
-          sort: sort || list[0],
-        })
-      );
-      isSearch.current = true;
-    }
-  }, []);
-
-  React.useEffect(() => {
-    window.scrollTo(0, 0);
-
-    if (!isSearch.current) {
-      getPizzas();
-    }
-    isSearch.current = false;
-  }, [categoryId, sort, searchValue]);
-
-  React.useEffect(() => {
-    if (isMounted.current) {
-      const queryString = qs.stringify({
-        sortProperty: sort.sortProperty,
-        categoryId,
-      });
-      navigate(`?${queryString}`);
-    }
-    isMounted.current = true;
-  }, [categoryId, sort, searchValue]);
-
-  const onChangeCategory = React.useCallback((id: number) => {
-    dispatch(setCategoryId(id));
-  }, []);
 
   return (
     <div className="container">
       <div className="content__top">
-        <Category value={categoryId} onChangeCategory={onChangeCategory} />
-        <Sort sort={sort} />
+        <Category value={categoryId} onChangeCategory={(id) => updateParam('categoryId', String(id))} />
+        <Sort sort={sort} onChangeSort={(value) => updateParam('sortProperty', value)} />
       </div>
-      <h2 className="content__title">Все пиццы</h2>
-      {status === "error" ? (
-        <div>
-          <h1>Произошла ошибка</h1>
-        </div>
+      <h1 className="content__title">Все пиццы</h1>
+      {status === Status.ERROR ? (
+        <p className="content__state" role="alert">Не удалось загрузить список пицц. Обновите страницу.</p>
+      ) : status === Status.SUCCESS && items.length === 0 ? (
+        <p className="content__state">По вашему запросу ничего не найдено.</p>
       ) : (
-        <div className="content__items">
-          {status === "loading"
-            ? [...new Array(6)].map((_, i) => <Skeleton key={i} />)
-            : items.map((obj: any) => <PizzaBlock key={obj.id} {...obj} />)}
+        <div className="content__items" aria-busy={status === Status.LOADING}>
+          {status === Status.LOADING
+            ? Array.from({ length: 6 }, (_, index) => <Skeleton key={index} />)
+            : items.map((pizza, index) => <PizzaBlock key={pizza.id} {...pizza} priority={index === 0} />)}
         </div>
       )}
     </div>

@@ -1,70 +1,49 @@
-# Getting Started with Create React App
+# React Pizza — Vite + React + TypeScript
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+Адаптивный демо-каталог пиццы на React 19, Redux Toolkit, React Router, TypeScript, SCSS и Vite 8. Управление зависимостями — **pnpm 12**. Внешний вид и функциональность сохранены после миграции с Create React App.
 
-## Available Scripts
+## Требования
 
-In the project directory, you can run:
+- Node.js **22.16+** (или актуальная версия 24/26)
+- pnpm **12.14.0** (зафиксирован в `packageManager`)
 
-### `npm start`
+На Windows можно установить pnpm через `npm install -g pnpm@12.14.0` или официальный установщик. Corepack также может использовать поле `packageManager`, если он установлен.
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+## Запуск
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+```bash
+pnpm install
+pnpm dev
+```
 
-### `npm test`
+Локальный сервер: URL выводится Vite (обычно `http://localhost:5173`).
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+### Проверки и production
 
-### `npm run build`
+```bash
+pnpm typecheck          # TypeScript
+pnpm test               # Vitest: редьюсеры и фильтрация
+pnpm build              # TypeScript + Vite => dist/
+pnpm preview            # проверка production bundle
+pnpm verify:static      # offline проверка структуры/импортов
+```
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+**Важно о lockfile:** в среде подготовки проекта нет сетевого доступа к npm registry, поэтому `pnpm install` и разрешение транзитивных версий не выполнились. Настоящий `pnpm-lock.yaml` **не создан** — старый `package-lock.json` удалён. При первом `pnpm install` он будет сгенерирован, после чего зафиксируйте его в Git. Не считайте сборку и тесты успешно пройденными до запуска команд выше.
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+## Возможности
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+- Каталог с фильтром по категориям, сортировкой, поиском, сохранением параметров в URL.
+- Страница пиццы `/pizza/:id` и корзина `/cart`.
+- Раздельный учёт размеров/теста в корзине, пересчёт стоимости, восстановление из `localStorage`.
+- Локальный каталог как запасной источник при недоступности демонстрационного API.
+- Адаптивная вёрстка, видимый фокус и поддержка reduced-motion.
 
-### `npm run eject`
+## Замечания для деплоя
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+- Vite генерирует статические файлы в `dist/`.
+- В хостинге нужен SPA fallback: для неизвестных URL отдавайте `/index.html`, иначе обновление `/cart` и `/pizza/:id` вернёт 404.
+- API `https://62a7887297b6156bff8ff64b.mockapi.io/items` демонстрационный, без гарантий доступности; изображение может загружаться с внешнего CDN.
+- Онлайн-оплата не подключена; кнопка оплаты намеренно недоступна.
+- SEO для SPA ограничен рендерингом на клиенте — для индексации динамических страниц рассмотрите SSR/пререндеринг.
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
-
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
-
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
-
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
-
-### Code Splitting
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+Сводка обновления находится в `MIGRATION_REPORT.md`.

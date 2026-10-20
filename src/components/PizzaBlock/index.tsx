@@ -1,107 +1,49 @@
-import React from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { Link } from "react-router-dom";
+import { useState } from 'react';
+import { useSelector } from 'react-redux';
+import { Link } from 'react-router';
+import { addItem } from '../../redux/slices/cartSlice';
+import type { PizzaItem } from '../../redux/slices/pizzasSlice';
+import { RootState, useAppDispatch } from '../../redux/store';
+import { handlePizzaImageError } from '../../utils/imageFallback';
 
+const typeNames = ['тонкое', 'традиционное'];
 
-import { addItem, CartItem } from "../../redux/slices/cartSlice";
-import { RootState } from "../../redux/store";
-
-type PizzaBlockProps = {
-  id: string;
-  title: string;
-  price: number;
-  imageUrl: string;
-  sizes: number[];
-  types: number[];
-  rating: number;
-};
-
-const typeNames = ["тонкое", "традиционное"];
-
-const PizzaBlock: React.FC<PizzaBlockProps> = ({
-  id,
-  title,
-  price,
-  imageUrl,
-  sizes,
-  types,
-}) => {
-  const [activeType, setActiveType] = React.useState(0);
-  const [activeSize, setActiveSize] = React.useState(0);
-
-  const dispatch = useDispatch();
-  const cartItem = useSelector((state: RootState) =>
-    state.cart.items.find((obj) => obj.id === id)
+const PizzaBlock = ({ id, title, price, imageUrl, sizes, types, priority = false }: PizzaItem & { priority?: boolean }) => {
+  const [activeType, setActiveType] = useState(types[0]);
+  const [activeSize, setActiveSize] = useState(sizes[0]);
+  const dispatch = useAppDispatch();
+  const selection = { id, title, price, imageUrl, type: typeNames[activeType], size: activeSize };
+  const addedCount = useSelector((state: RootState) =>
+    state.cart.items.filter((item) => item.id === id).reduce((sum, item) => sum + item.count, 0)
   );
 
-  const addedCount = cartItem ? cartItem.count : 0;
-
-  const onClickAdd = () => {
-    const item: CartItem = {
-      id,
-      title,
-      price,
-      imageUrl,
-      type: typeNames[activeType],
-      size: sizes[activeSize],
-      count: 0
-    };
-    dispatch(addItem(item));
-  };
-
   return (
-    <div className="pizza-block">
-      <Link key={id} to={`/pizza/${id}`}>
-      <img className="pizza-block__image" src={imageUrl} alt="Pizza" />
-      <h4 className="pizza-block__title">{title}</h4>
+    <article className="pizza-block">
+      <Link to={`/pizza/${encodeURIComponent(id)}`} className="pizza-block__link">
+        <img className="pizza-block__image" src={imageUrl} alt={title} onError={handlePizzaImageError} loading={priority ? "eager" : "lazy"} width="260" height="260" decoding="async" />
+        <h2 className="pizza-block__title">{title}</h2>
       </Link>
       <div className="pizza-block__selector">
-        <ul>
-          {types.map((typeId, i) => (
-            <li
-              key={i}
-              className={activeType === i ? "active" : ""}
-              onClick={() => setActiveType(i)}
-            >
-              {typeNames[typeId]}
-            </li>
+        <div className="pizza-block__options" role="group" aria-label={`Тесто: ${title}`}>
+          {types.map((typeId) => (
+            <button key={typeId} type="button" className={activeType === typeId ? 'active' : ''} aria-pressed={activeType === typeId} onClick={() => setActiveType(typeId)}>{typeNames[typeId]}</button>
           ))}
-        </ul>
-        <ul>
-          {sizes.map((size, i) => (
-            <li
-              key={i}
-              className={activeSize === i ? "active" : ""}
-              onClick={() => setActiveSize(i)}
-            >
-              {size} см.
-            </li>
+        </div>
+        <div className="pizza-block__options" role="group" aria-label={`Размер: ${title}`}>
+          {sizes.map((size) => (
+            <button key={size} type="button" className={activeSize === size ? 'active' : ''} aria-pressed={activeSize === size} onClick={() => setActiveSize(size)}>{size} см.</button>
           ))}
-        </ul>
-      </div>
-      <div className="pizza-block__bottom">
-        <div className="pizza-block__price">от {price} ₽</div>
-        <div
-          onClick={onClickAdd}
-          className="button button--outline button--add"
-        >
-          <svg
-            width="12"
-            height="12"
-            viewBox="0 0 12 12"
-            fill="none"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <path
-              d="M10.8 4.8H7.2V1.2C7.2 0.5373 6.6627 0 6 0C5.3373 0 4.8 0.5373 4.8 1.2V4.8H1.2C0.5373 4.8 0 5.3373 0 6C0 6.6627 0.5373 7.2 1.2 7.2H4.8V10.8C4.8 11.4627 5.3373 12 6 12C6.6627 12 7.2 11.4627 7.2 10.8V7.2H10.8C11.4627 7.2 12 6.6627 12 6C12 5.3373 11.4627 4.8 10.8 4.8Z"
-              fill="white"
-            />
-          </svg>
-          <span>Добавить</span>
-          {addedCount > 0 && <i>{addedCount}</i>}
         </div>
       </div>
-    </div>
+      <div className="pizza-block__bottom">
+        <span className="pizza-block__price">от {price} ₽</span>
+        <button type="button" className="button button--outline button--add" onClick={() => dispatch(addItem(selection))} aria-label={`Добавить ${title}, ${selection.type}, ${selection.size} см. в корзину`}>
+          <svg width="12" height="12" viewBox="0 0 12 12" aria-hidden="true"><path d="M10.8 4.8H7.2V1.2a1.2 1.2 0 0 0-2.4 0v3.6H1.2a1.2 1.2 0 0 0 0 2.4h3.6v3.6a1.2 1.2 0 0 0 2.4 0V7.2h3.6a1.2 1.2 0 0 0 0-2.4Z" /></svg>
+          <span>Добавить</span>
+          {addedCount > 0 && <i aria-hidden="true">{addedCount}</i>}
+        </button>
+      </div>
+    </article>
   );
 };
 

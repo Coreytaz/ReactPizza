@@ -1,31 +1,20 @@
-@import '../variables';
-
 .categories {
-  ul {
-    display: flex;
-
-    li {
-      background-color: #f9f9f9;
-      padding: 13px 30px;
-      border-radius: 30px;
-      margin-right: 10px;
-      font-weight: bold;
-      cursor: pointer;
-      transition: background-color 0.1s ease-in-out;
-      @include noselect();
-
-      &:hover {
-        background-color: darken(#f9f9f9, 2%);
-      }
-
-      &:active {
-        background-color: darken(#f9f9f9, 5%);
-      }
-
-      &.active {
-        background-color: #282828;
-        color: #fff;
-      }
-    }
+  flex: 1 1 auto; min-width: 0;
+  ul { display: flex; align-items: center; gap: 9px; }
+  li { flex: 0 0 auto; }
+  button {
+    white-space: nowrap; border: 0; border-radius: 25px;
+    background: #f6f6f6; color: $black; font-weight: 700;
+    min-height: 44px; padding: 10px 19px;
+    transition: background-color $duration ease-in-out;
+    &:hover { background: #ececec; }
+    &.active, &.active:hover { background: $black; color: white; }
+  }
+}
+@media (max-width: 1050px) {
+  .categories {
+    width: 100%;
+    ul { overflow-x: auto; overscroll-behavior-inline: contain; scroll-snap-type: x proximity; padding: 5px 3px 10px; }
+    li { scroll-snap-align: start; }
   }
 }

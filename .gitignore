@@ -21,3 +21,10 @@
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+
+# Vite / TypeScript / pnpm
+/dist
+/.vite
+*.tsbuildinfo
+.pnpm-store/
+.pnpm-debug.log*
