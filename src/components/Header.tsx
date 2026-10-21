@@ -2,6 +2,7 @@ import { Link, useLocation } from 'react-router';
 import { useSelector } from 'react-redux';
 import logoSvg from '../assets/img/pizza-logo.svg';
 import Search from './Search';
+import ThemeToggle from './ThemeToggle';
 import { RootState } from '../redux/store';
 
 const Header = () => {
@@ -19,6 +20,8 @@ const Header = () => {
           </div>
         </Link>
         {pathname === '/' && <Search />}
+        <div className="header__actions">
+        <ThemeToggle />
         {pathname !== '/cart' && (
           <Link to="/cart" className="button button--cart" aria-label={`Корзина: ${totalCount} шт., ${totalPrice} рублей`}>
             <span>{totalPrice} ₽</span><span className="button__delimiter" aria-hidden="true" />
@@ -26,6 +29,7 @@ const Header = () => {
             <span>{totalCount}</span>
           </Link>
         )}
+        </div>
       </div>
     </header>
   );

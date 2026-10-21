@@ -4,11 +4,11 @@
   li { flex: 0 0 auto; }
   button {
     white-space: nowrap; border: 0; border-radius: 25px;
-    background: #f6f6f6; color: $black; font-weight: 700;
+    background: var(--surface-soft); color: var(--muted); font-weight: 700;
     min-height: 44px; padding: 10px 19px;
     transition: background-color $duration ease-in-out;
-    &:hover { background: #ececec; }
-    &.active, &.active:hover { background: $black; color: white; }
+    &:hover { background: var(--hover); }
+    &.active, &.active:hover { background: var(--accent-soft); color: var(--accent); box-shadow: inset 0 0 0 1px var(--accent-border); }
   }
 }
 @media (max-width: 1050px) {

@@ -20,7 +20,7 @@
   &:disabled { opacity: .55; }
   &--black { background-color: $black; &:hover:not(:disabled) { background: #444; } }
   &--outline {
-    background: #fff; border-color: #c7440e; color: #c7440e;
+    background: var(--surface); border-color: var(--outline); color: var(--outline);
     svg path { fill: currentColor; }
     &:hover:not(:disabled) { color: white; svg path { fill: currentColor; } }
   }

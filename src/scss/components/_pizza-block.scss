@@ -1,21 +1,28 @@
 .pizza-block {
   width: 100%; min-width: 0; max-width: 300px; text-align: center; display: flex; flex-direction: column;
+  padding: 16px 12px; border: 1px solid var(--border); border-radius: 18px;
+  background: var(--surface);
+  transition: border-color $duration ease-in-out, box-shadow $duration ease-in-out;
+  @media (hover: hover) {
+    &:hover { border-color: var(--accent-border); box-shadow: 0 8px 24px rgb(73 49 22 / 7%); }
+  }
   &__link { display: block; }
-  &__image { display: block; aspect-ratio: 1; object-fit: contain; width: min(100%, 260px); margin: 0 auto 8px; }
+  &__image { display: block; aspect-ratio: 1; object-fit: contain; width: min(100%, 230px); margin: 0 auto 16px; }
   &__title { min-height: 2.6em; margin: 0 0 14px; font-size: clamp(17px, 1.5vw, 20px); font-weight: 800; }
-  &__selector { margin-top: auto; padding: 6px; background: #f3f3f3; border-radius: 10px; }
+  &__selector { margin-top: auto; padding: 6px; background: var(--surface-soft); border-radius: 10px; }
   &__options {
     display: flex; gap: 4px;
     & + & { margin-top: 5px; }
     button {
       min-width: 0; flex: 1 1 0; border: 0; border-radius: 5px; padding: 9px 3px;
-      font-size: 13px; font-weight: 700; color: $black; background: transparent;
-      &.active { background: white; box-shadow: 0 2px 4px rgb(0 0 0 / 5%); }
-      &:hover:not(.active) { background: rgb(255 255 255 / 55%); }
+      font-size: 13px; font-weight: 700; color: var(--text); background: transparent;
+      &.active { background: var(--surface); box-shadow: 0 2px 4px rgb(0 0 0 / 5%); }
+      &:hover:not(.active) { background: var(--hover); }
     }
   }
   &__bottom { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-top: 16px; }
   &__price { font-size: clamp(17px, 1.6vw, 22px); font-weight: 700; white-space: nowrap; }
+  .button--add { padding-inline: 10px; font-size: 14px; }
 }
 .pizza-block__skeleton { display: block; max-width: 280px; width: 100%; height: auto; aspect-ratio: 280 / 500; }
 
@@ -25,7 +32,7 @@
   pointer-events: none;
   > span {
     display: block;
-    background: linear-gradient(100deg, #eee 20%, #f7f7f7 45%, #eee 70%);
+    background: linear-gradient(100deg, var(--skeleton) 20%, var(--skeleton-shine) 45%, var(--skeleton) 70%);
     background-size: 200% 100%;
     animation: pizza-skeleton-pulse 1.8s linear infinite;
     border-radius: 10px;

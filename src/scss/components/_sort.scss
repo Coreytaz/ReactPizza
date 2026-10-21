@@ -1,12 +1,13 @@
 .sort {
   position: relative; flex-shrink: 0; z-index: 5;
-  &__label { display: flex; align-items: center; gap: 7px; font-size: 14px; }
-  &__trigger { padding: 7px 2px; color: #bf4210; text-decoration: underline dashed; text-underline-offset: 4px; border: 0; background: transparent; white-space: nowrap; }
+  &__label { display: flex; align-items: center; flex-wrap: wrap; gap: 7px; font-size: 14px; color: var(--muted); }
+  &__trigger { padding: 7px 2px; color: var(--accent); text-decoration: underline dashed; text-underline-offset: 4px; border: 0; background: transparent; white-space: nowrap; }
   &__popup {
     position: absolute; top: 100%; right: 0; width: max-content; min-width: 200px; max-width: min(300px, 90vw);
-    padding: 7px; background: #fff; box-shadow: 0 5px 15px rgb(0 0 0 / 12%); border-radius: 10px;
-    button { width: 100%; text-align: left; border: 0; padding: 10px 13px; background: #fff; border-radius: 6px; color: $black; }
-    button:hover, button.active { background: #fff1e9; color: #a53600; }
+    padding: 7px; background: var(--surface); border: 1px solid var(--border); box-shadow: 0 8px 24px rgb(73 49 22 / 10%); border-radius: 14px;
+    button { width: 100%; text-align: left; border: 0; padding: 10px 13px; background: var(--surface); border-radius: 6px; color: var(--text); }
+    button:hover, button.active { background: var(--accent-soft); color: var(--accent); }
     button.active { font-weight: 700; }
   }
 }
+@media (max-width: 540px) { .sort__popup { right: auto; left: 0; } }
